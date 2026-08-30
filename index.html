@@ -695,7 +695,7 @@ body{
 .gallery .glabel{
   position:absolute;
   top:1.1vh;
-  left:3px;
+  left:3;
   min-width:260px;
   height:36px;
   display:flex;
@@ -956,7 +956,7 @@ body{
 <div id="load" class="load">Memuat informasi sekolah…</div>
 <div class="screen">
 <header class="header">
-<img class="logo" src="https://drive.google.com/thumbnail?id=1K0Qh98NyVN6wdIgT6SYdqz8Kkt8ZGXkU" alt="Logo sekolah" width="70" height="70">&nbsp;&nbsp;
+<img src="https://drive.google.com/thumbnail?id=1K0Qh98NyVN6wdIgT6SYdqz8Kkt8ZGXkU" alt="Logo sekolah"width="70"height="70"/>&nbsp;&nbsp;
 <div class="school"><h1 id="name">SMK WIDYA DIRGANTARA</h1><p id="slogan">Berkarakter • Kompeten • Berprestasi</p></div>
 <div class="clock"><div id="time" class="time">00:00:00</div><div id="date" class="date"></div></div>
 </header>
@@ -1040,136 +1040,134 @@ body{
 </div>
 <script>
 const API_URL='https://script.google.com/macros/s/AKfycbyfqqN3WhRl5rasgXVOuWHRcmRgtUP1mdM2Kh2PZOGFyNKt9w62Ob7vIvfyXXiYrQJfuA/exec';
-let D={},ai=0,ri=0,galleryIndex=0,loading=false;
-
-function api(action,data={}){
-  return new Promise((resolve,reject)=>{
-    const cb='cb_'+Date.now()+'_'+Math.random().toString(36).slice(2);
-    const script=document.createElement('script');
-    const params=new URLSearchParams({action,callback:cb,...data});
-    let finished=false;
-
-    const cleanup=()=>{
-      clearTimeout(timer);
-      delete window[cb];
-      script.remove();
-    };
-    const done=(fn)=>{
-      if(finished)return;
-      finished=true;
-      cleanup();
-      fn();
-    };
-    const timer=setTimeout(()=>done(()=>reject(new Error('Timeout menghubungi backend Apps Script.'))),20000);
-
-    window[cb]=(response)=>done(()=>{
-      if(!response||response.success!==true){
-        reject(new Error((response&&response.message)||'Respons backend tidak valid.'));
-        return;
-      }
-      resolve(response.data||{});
-    });
-
-    script.onerror=()=>done(()=>reject(new Error('Backend tidak dapat diakses. Periksa deployment Web App Apps Script.')));
-    script.src=API_URL+'?'+params.toString();
-    script.async=true;
-    document.head.appendChild(script);
-  });
-}
-
-function esc(v){
-  return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-}
-function fmt(v,opt){
-  if(!v)return'';
-  const d=new Date(v);
-  return isNaN(d.getTime())?String(v):d.toLocaleDateString('id-ID',opt);
-}
-function clock(){
-  const d=new Date();
-  document.getElementById('time').textContent=d.toLocaleTimeString('id-ID',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  document.getElementById('date').textContent=d.toLocaleDateString('id-ID',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}).toUpperCase();
-}
-function render(){
-  const s=D.sekolah||{},z=D.settings||{};
-  document.getElementById('name').textContent=s.Nama||'SMK WIDYA DIRGANTARA';
-  document.getElementById('slogan').textContent=s.Slogan||'Berkarakter • Kompeten • Berprestasi';
-  document.getElementById('city').textContent=z.namaKota||'Bandung';
-  document.getElementById('hours').textContent='Jam Sekolah '+(z.jamSekolah||'07.00 - 15.30');
-  announcement();agenda();achievement();gallery();ticker();
-}
-function announcement(){
-  const a=Array.isArray(D.pengumuman)?D.pengumuman:[];
-  const at=document.getElementById('at'),ap=document.getElementById('ap'),ad=document.getElementById('ad');
-  if(!a.length){at.textContent='Selamat Datang';ap.textContent='';ad.textContent='Informasi sekolah akan tampil di sini.';return;}
-  const x=a[ai%a.length];
-  at.textContent=x.Judul||'Pengumuman';
-  ap.textContent=x.TanggalMulai&&x.TanggalSelesai?'Dibuka '+fmt(x.TanggalMulai,{day:'2-digit',month:'long',year:'numeric'})+' – '+fmt(x.TanggalSelesai,{day:'2-digit',month:'long',year:'numeric'}):'';
-  ad.textContent=x.Isi||'';
-}
+let D={},ai=0,ri=0,galleryIndex=0;
+function api(action,data={}){return new Promise((resolve,reject)=>{const cb='cb_'+Date.now()+'_'+Math.random().toString(36).slice(2),s=document.createElement('script');const params=new URLSearchParams({action,callback:cb,...data});const timer=setTimeout(()=>{cleanup();reject(new Error('Timeout menghubungi backend Apps Script.'))},15000);function cleanup(){clearTimeout(timer);delete window[cb];s.remove()}window[cb]=(j)=>{cleanup();if(!j||!j.success)reject(new Error((j&&j.message)||'Backend error'));else resolve(j.data)};s.onerror=()=>{cleanup();reject(new Error('Backend tidak dapat diakses. Periksa deployment Web App Apps Script.'))};s.src=API_URL+'?'+params.toString();document.head.appendChild(s)})}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function date(v){if(!v)return'';let d=new Date(v);return isNaN(d)?v:d.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})}
+function clock(){const d=new Date();document.getElementById('time').textContent=d.toLocaleTimeString('id-ID',{hour12:false});document.getElementById('date').textContent=d.toLocaleDateString('id-ID',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}).toUpperCase()}
+function render(){const s=D.sekolah||{},z=D.settings||{};document.getElementById('name').textContent=s.Nama||'SMKS WIDYA DIRGANTARA BANDUNG';document.getElementById('slogan').textContent=s.Slogan||'Berkarakter • Kompeten • Berprestasi';document.getElementById('city').textContent=z.namaKota||'Bandung';document.getElementById('hours').textContent='Jam Sekolah '+(z.jamSekolah||'07.00 - 15.30');announcement();agenda();achievement();gallery();ticker()}
+function announcement(){const a=D.pengumuman||[];const at=document.getElementById('at'),ap=document.getElementById('ap'),ad=document.getElementById('ad');if(!a.length){at.textContent='Selamat Datang';ap.textContent='';ad.textContent='Informasi sekolah akan tampil di sini.';return}const x=a[ai%a.length];at.textContent=x.Judul||'Pengumuman';ap.textContent=x.TanggalMulai&&x.TanggalSelesai?'Dibuka '+date(x.TanggalMulai)+' – '+date(x.TanggalSelesai):'';ad.textContent=x.Isi||''}
 function agenda(){
-  const a=Array.isArray(D.agenda)?D.agenda:[];
-  const box=document.getElementById('agenda');
-  if(!a.length){box.innerHTML='<div class="agenda-empty">Tidak ada agenda hari ini.</div>';return;}
-  const pin='<span class="location-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 21S19 15.2 19 9.5C19 5.91 15.87 3 12 3S5 5.91 5 9.5C5 15.2 12 21 12 21Z" fill="#e31b2b"/><circle cx="12" cy="9.5" r="2.5" fill="#ffffff"/></svg></span>';
-  const rows=a.map(x=>'<div class="agenda-item"><div class="agenda-time"><span class="agenda-date">'+esc(fmt(x.Tanggal||x.Tgl||x.Date,{day:'2-digit',month:'2-digit',year:'numeric'}))+'</span><span class="agenda-hour">'+esc(x.Jam||'')+'</span></div><div class="agenda-event">'+esc(x.Kegiatan||'')+'</div><div class="agenda-location">'+pin+'<span>'+esc(x.Tempat||'')+'</span></div></div>').join('');
-  box.innerHTML='<div class="agenda-marquee" id="agendaMarquee"><div class="agenda-set">'+rows+'</div><div class="agenda-set" aria-hidden="true">'+rows+'</div></div>';
+  const a=D.agenda||[];
+  const pin=`<span class="location-icon">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M12 21C12 21 19 15.2 19 9.5 C19 5.91 15.87 3 12 3 C8.13 3 5 5.91 5 9.5 C5 15.2 12 21 12 21Z" fill="#e31b2b"/>
+      <circle cx="12" cy="9.5" r="2.5" fill="#ffffff"/>
+    </svg>
+  </span>`;
+
+  const formatAgendaDate = v => {
+    if(!v) return '';
+    const d=new Date(v);
+    if(isNaN(d)) return String(v);
+    return d.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'});
+  };
+
+  const item = x => `<div class="agenda-item">
+      <div class="agenda-time">
+        <span class="agenda-date">${esc(formatAgendaDate(x.Tanggal||x.Tgl||x.Date))}</span>
+        <span class="agenda-hour">${esc(x.Jam||'')}</span>
+      </div>
+      <div class="agenda-event">${esc(x.Kegiatan||'')}</div>
+      <div class="agenda-location">${pin}<span>${esc(x.Tempat||'')}</span></div>
+    </div>`;
+
+  if(!a.length){
+    document.getElementById('agenda').innerHTML =
+      '<div class="agenda-empty">Tidak ada agenda hari ini.</div>';
+    return;
+  }
+
+  /*
+   * Dua salinan dibuat agar gerakan berjalan terus:
+   * salinan pertama bergerak ke atas sampai habis,
+   * lalu salinan kedua tepat mengambil alih dan animasi kembali
+   * ke posisi awal tanpa jeda. Tidak ada pengaturan waktu pengulangan
+   * per agenda; seluruh daftar langsung diulang dari atas.
+   */
+  const rows = a.map(item).join('');
+  const box = document.getElementById('agenda');
+  box.innerHTML = `
+    <div class="agenda-marquee" id="agendaMarquee">
+      <div class="agenda-set">${rows}</div>
+      <div class="agenda-set" aria-hidden="true">${rows}</div>
+    </div>`;
+
   requestAnimationFrame(()=>{
-    const m=document.getElementById('agendaMarquee'),first=m?.querySelector('.agenda-set');
-    if(!m||!first)return;
-    m.style.setProperty('--agenda-duration',Math.max(8,Math.max(first.offsetHeight,box.clientHeight)/35)+'s');
+    const marquee=document.getElementById('agendaMarquee');
+    const firstSet=marquee?.querySelector('.agenda-set');
+    if(!marquee || !firstSet) return;
+
+    const distance=Math.max(firstSet.offsetHeight, box.clientHeight);
+    /*
+     * Kecepatan dibuat berdasarkan panjang isi, bukan timer per agenda.
+     * Makin banyak agenda, durasi otomatis bertambah agar gerak tetap nyaman.
+     */
+    const speed=35; // piksel/detik
+    const duration=Math.max(8, distance/speed);
+    marquee.style.setProperty('--agenda-duration', duration+'s');
   });
 }
 function achievement(){
-  const a=Array.isArray(D.prestasi)?D.prestasi:[];
+  const a=D.prestasi||[];
   const box=document.getElementById('ach');
-  if(!a.length){box.innerHTML='<div class="agenda-empty">Belum ada prestasi terbaru.</div>';return;}
-  const rotated=a.map((_,i)=>a[(i+ri)%a.length]);
-  const rows=rotated.map((x,i)=>{
-    const type=i%3===0?'gold':i%3===1?'silver':'bronze';
-    return '<div class="achievement-item"><div class="medal '+type+'"><div class="medal-ribbon-left"></div><div class="medal-ribbon-right"></div><div class="medal-circle">'+((i%3)+1)+'</div></div><div class="achievement-detail"><div class="achievement-rank">'+esc(x.Prestasi||x.Tingkat||'PRESTASI')+'</div><div class="achievement-level">'+esc(x.Tingkat||'')+'</div><div class="achievement-student">'+esc(x.NamaSiswa||'')+(x.Kelas?' – '+esc(x.Kelas):'')+'</div></div><div class="achievement-date">'+esc(fmt(x.Tanggal||x.Tgl||x.Date,{day:'2-digit',month:'short',year:'numeric'}))+'</div></div>';
-  }).join('');
-  box.innerHTML='<div class="achievement-marquee" id="achievementMarquee"><div class="achievement-set">'+rows+'</div><div class="achievement-set" aria-hidden="true">'+rows+'</div></div>';
+
+  if(!a.length){
+    box.innerHTML='<div class="agenda-empty">Belum ada prestasi terbaru.</div>';
+    return;
+  }
+
+  const medalType = i => i===0 ? 'gold' : (i===1 ? 'silver' : 'bronze');
+  const medalNumber = i => i+1;
+
+  const formatDate = v => {
+    if(!v) return '';
+    const d=new Date(v);
+    if(isNaN(d)) return String(v);
+    return d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
+  };
+
+  const item = (x,i) => `
+    <div class="achievement-item">
+      <div class="medal ${medalType(i%3)}">
+        <div class="medal-ribbon-left"></div>
+        <div class="medal-ribbon-right"></div>
+        <div class="medal-circle">${medalNumber(i%3)}</div>
+      </div>
+      <div class="achievement-detail">
+        <div class="achievement-rank">${esc(x.Prestasi||x.Tingkat||'PRESTASI')}</div>
+        <div class="achievement-level">${esc(x.Tingkat||'')}</div>
+        <div class="achievement-student">${esc(x.NamaSiswa||'')} ${x.Kelas?'– '+esc(x.Kelas):''}</div>
+      </div>
+      <div class="achievement-date">${esc(formatDate(x.Tanggal||x.Tgl||x.Date))}</div>
+    </div>`;
+
+  const rows=a.map(item).join('');
+
+  box.innerHTML=`
+    <div class="achievement-marquee" id="achievementMarquee">
+      <div class="achievement-set">${rows}</div>
+      <div class="achievement-set" aria-hidden="true">${rows}</div>
+    </div>`;
+
   requestAnimationFrame(()=>{
-    const m=document.getElementById('achievementMarquee'),first=m?.querySelector('.achievement-set');
-    if(!m||!first)return;
-    m.style.setProperty('--achievement-duration',Math.max(8,Math.max(first.offsetHeight,box.clientHeight)/35)+'s');
+    const marquee=document.getElementById('achievementMarquee');
+    const firstSet=marquee?.querySelector('.achievement-set');
+    if(!marquee || !firstSet) return;
+
+    const distance=Math.max(firstSet.offsetHeight,box.clientHeight);
+
+    // Sama prinsipnya dengan marquee agenda:
+    // durasi otomatis berdasarkan panjang daftar, bukan timer per item.
+    const speed=35; // piksel per detik
+    const duration=Math.max(8,distance/speed);
+
+    marquee.style.setProperty('--achievement-duration',duration+'s');
   });
 }
-function gallery(){
-  const img=document.getElementById('gi'),cap=document.getElementById('gc'),a=Array.isArray(D.galeri)?D.galeri:[];
-  if(!a.length){img.style.display='none';cap.textContent='Belum ada foto kegiatan';return;}
-  const x=a[galleryIndex%a.length],src=x.Foto||'';
-  img.style.display=src?'block':'none';
-  img.src=src;
-  img.alt=x.Judul||x.Keterangan||'Kegiatan sekolah';
-  cap.textContent=x.Judul||x.Keterangan||'Kegiatan sekolah';
-}
-function ticker(){
-  const a=Array.isArray(D.runningText)?D.runningText:[];
-  document.getElementById('tick').textContent=a.length?a.map(x=>x.Teks||'').filter(Boolean).join('   •   '):'Selamat datang di Display Informasi Sekolah.';
-}
-async function load(){
-  if(loading)return;
-  loading=true;
-  try{
-    D=await api('getDisplayData');
-    ai=0;ri=0;galleryIndex=0;
-    render();
-    document.getElementById('load').style.display='none';
-  }catch(e){
-    const loader=document.getElementById('load');
-    loader.style.display='grid';
-    loader.textContent='Gagal memuat data display: '+e.message;
-    console.error(e);
-  }finally{loading=false;}
-}
-clock();
-setInterval(clock,1000);
-load();
-setInterval(load,60000);
-setInterval(()=>{if(Array.isArray(D.pengumuman)&&D.pengumuman.length>1){ai=(ai+1)%D.pengumuman.length;announcement();}},10000);
-setInterval(()=>{if(Array.isArray(D.prestasi)&&D.prestasi.length>1){ri=(ri+1)%D.prestasi.length;achievement();}},10000);
-setInterval(()=>{if(Array.isArray(D.galeri)&&D.galeri.length>1){galleryIndex=(galleryIndex+1)%D.galeri.length;gallery();}},10000);
+function gallery(){const img=document.getElementById('gi'),cap=document.getElementById('gc'),a=D.galeri||[];if(!a.length){img.style.display='none';cap.textContent='Belum ada foto kegiatan';return}const x=a[galleryIndex%a.length];img.style.display='block';img.src=x.Foto||'';cap.textContent=x.Judul||x.Keterangan||'Kegiatan sekolah'}
+function ticker(){const a=D.runningText||[];document.getElementById('tick').textContent=a.length?a.map(x=>x.Teks).join('   •   '):'Selamat datang di Display Informasi Sekolah.'}
+async function load(){try{D=await api('getDisplayData');render();document.getElementById('load').style.display='none'}catch(e){document.getElementById('load').textContent='Gagal memuat data display: '+e.message;console.error(e)}}
+clock();setInterval(clock,1000);load();setInterval(load,60000);setInterval(()=>{ai++;announcement()},10000);setInterval(()=>{ri++;achievement()},10000);setInterval(()=>{galleryIndex++;gallery()},10000);
 </script>
 </body></html>
